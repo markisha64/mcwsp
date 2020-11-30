@@ -40,7 +40,10 @@ wss.on('connection', ws => {
 				}
 				console.log(mcip);
 				console.log(mcport);
+				mcip = "mc.hypixel.net";
+				mcport = 25565;
 				client = net.connect(mcport, mcip, ()=>{
+					connected = true;
 					console.log('Connected to mc server');
 					ws.send("Connected to MC server");
 					client.on('data', (data)=>{
@@ -55,6 +58,15 @@ wss.on('connection', ws => {
 						ws.send("Disconnected from MC server");
 					})
 				});
+			}
+			else{
+				switch(event){
+					case "Disconnect from MC server":
+						client.end();
+						isFirstConnection = true;
+						connected = false;
+						break;
+				}
 			}
 		}
 		else{
@@ -100,7 +112,7 @@ wss.on('connection', ws => {
 				
 				//Overwrite old data
 				data = newData;
-				ws.send(data);
+				client.write(data);
 				isFirstConnection = false;
 			}
 			else{

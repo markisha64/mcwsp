@@ -6,6 +6,7 @@ var wss = new WebSocket.Server({ port: 5000 });
 wss.on('connection', ws => {
 	console.log('client connected');
 	var server = net.createServer((socket) =>{
+		ws.send("Game client connected:")
 		var remoteAddress = socket.remoteAddress + ':' + socket.remotePort;
 		console.log('new client connection from %s' + remoteAddress);
 
@@ -13,7 +14,6 @@ wss.on('connection', ws => {
 			socket.write(Buffer.from(event));
 		});
 		socket.on('data', (data)=>{
-			console.log(data)
 			ws.send(data);
 
 		});
