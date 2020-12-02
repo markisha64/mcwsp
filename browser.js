@@ -50,7 +50,16 @@ function loccon(){
 		}
 		locserv.onmessage = function(event){
 			if (typeof event.data == "string"){
-				hostserv.send("Game client connected:"+document.getElementById('a').value);
+				if (event.data.includes("Game client connected:")){
+					hostserv.send("Game client connected:"+document.getElementById('a').value);
+				}
+				else{
+					switch(event.data){
+						case "MC client disconnected":
+							dcmc();
+							break;
+					}
+				}
 			}
 			else if (hostedConnected == false){
 				console.error("Can't redirect packets, hosted WS is disconnected");
@@ -72,8 +81,9 @@ function loccon(){
 		}
 	}
 }
-function conmc(){
+function dcmc(){
 	if (serverConnected == true){
 		hostserv.send("Disconnect from MC server");
+		locserv.send("Disconnected from MC server");
 	}
 }

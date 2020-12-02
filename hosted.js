@@ -38,10 +38,6 @@ wss.on('connection', ws => {
 				else{
 					mcport = 25565;
 				}
-				console.log(mcip);
-				console.log(mcport);
-				mcip = "mc.hypixel.net";
-				mcport = 25565;
 				client = net.connect(mcport, mcip, ()=>{
 					connected = true;
 					console.log('Connected to mc server');
@@ -52,10 +48,12 @@ wss.on('connection', ws => {
 					client.on('end', ()=>{
 						console.log("Disconnected from mc server");
 						ws.send("Disconnected from MC server");
+						isFirstConnection = true;
 					});
 					client.on('error', (error)=>{
 						console.error("Error: ",error);
 						ws.send("Disconnected from MC server");
+						isFirstConnection = true;
 					})
 				});
 			}
