@@ -8,11 +8,11 @@ http.createServer(function(req,res){
 	fs.readFile(__dirname + '/index.html', function(err,data){
 		if (err){
 			res.writeHead(404);
-			res.end(JSON.stringify(err));
+			res.destroy(JSON.stringify(err));
 			return;
 		}
 		res.writeHead(200);
-		res.end(data);
+		res.destroy(data);
 	});
 }).listen(80);
 
@@ -49,18 +49,21 @@ wss.on('connection', ws => {
 						console.log("Disconnected from mc server");
 						ws.send("Disconnected from MC server");
 						isFirstConnection = true;
+						connected = false;
 					});
 					client.on('error', (error)=>{
 						console.error("Error: ",error);
+						client.destroy();
 						ws.send("Disconnected from MC server");
 						isFirstConnection = true;
+						connected = false;
 					})
 				});
 			}
 			else{
 				switch(event){
 					case "Disconnect from MC server":
-						client.end();
+						client.destroy();
 						isFirstConnection = true;
 						connected = false;
 						break;
