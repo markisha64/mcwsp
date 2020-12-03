@@ -13,22 +13,24 @@
 		var localConnected = false;
 		var hostedConnected = false;
 		var serverConnected = false;
-		var hostserv = 0;
-		var locserv = 0;
+		var hostserv;
+		var locserv;
 	</script>
-	<script type="text/javascript" src="browser.js"></script>
+	<script type="text/javascript" src="/browser.js"></script>
 	<head>
 		<title></title>
 	</head>
 	<body>
 		<div>
-			<input type="text" name="what im sending" id="i" value="Hosted WS ip">
-			<button class="disconnected" id="hc" onclick="globcon()">Connect hosted WS</button>
-		</div>
+			<button class="disconnected" id="hc" onclick="hostcon()">Connect hosted WS</button>
+			<button class="disconnected" id="lc" onclick="loccon()">Connect local WS</button>
+		</div><br>
 		<div>
-			<input type="text" name="mc server adress" id="a" value="mc.hypixel.net">
+			<form style="display:inline-block;">
+				<label>Minecraft server ip</label><br>
+				<input type="text" name="mc server adress" id="a" value="mc.hypixel.net">
+			</form>
 			<button class="disconnected" id="con" onclick="dcmc()">Disconnect from Minecraft server</button>
 		</div>
-		<button class="disconnected" id="lc" onclick="loccon()">Connect local WS</button>
 	</body>
 </html>

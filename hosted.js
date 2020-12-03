@@ -1,22 +1,41 @@
 
-var http = require('http');
-var WebSocket = require('ws');
-var fs = require('fs');
-var net = require('net');
+const http = require('http');
+const WebSocket = require('ws');
+const fs = require('fs');
+const net = require('net');
+const url = require('url');
 
-http.createServer(function(req,res){
-	fs.readFile(__dirname + '/index.html', function(err,data){
-		if (err){
-			res.writeHead(404);
-			res.destroy(JSON.stringify(err));
-			return;
-		}
-		res.writeHead(200);
-		res.destroy(data);
-	});
-}).listen(80);
+const webserver = http.createServer({});
+const wss = new WebSocket.Server({ server: webserver });
 
-var wss = new WebSocket.Server({ port: 8080 });
+webserver.on('request', (req,res)=>{
+	var q = url.parse(req.url, true);
+  	var filename = "." + q.pathname;
+  	if (filename == "./"){
+  		fs.readFile('index.html', (err,data)=>{
+  			if (err) {
+			res.writeHead(404, {'Content-Type': 'text/html'});
+			return res.end("404 Not Found");
+	    } 
+	    res.writeHead(200, {'Content-Type': 'text/html'});
+	    res.write(data);
+	    return res.end();
+  		});
+
+  	}
+  	else{
+  		fs.readFile(filename, function(err, data) {
+		    if (err) {
+				res.writeHead(404, {'Content-Type': 'text/html'});
+				return res.end("404 Not Found");
+		    } 
+		    res.writeHead(200, {'Content-Type': 'text/html'});
+		    res.write(data);
+		    return res.end();
+		});
+  	}
+});
+
 wss.on('connection', ws => {
 	console.log('client connected');
 
@@ -122,3 +141,5 @@ wss.on('connection', ws => {
 		}
 	});
 });
+
+webserver.listen(8080);

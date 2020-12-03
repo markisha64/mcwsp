@@ -17,7 +17,7 @@ wss.on('connection', ws => {
 				if (typeof event == "string"){
 					switch(event){
 						case "Disconnected from MC server":
-							socket.destroy();
+							socket.end();
 							connected = false;
 							break;
 					}
@@ -29,7 +29,7 @@ wss.on('connection', ws => {
 		});
 		ws.on('close', ()=>{
 			connected = false;
-			socket.destroy();
+			socket.end();
 		})
 		socket.on('data', (data)=>{
 			ws.send(data);
@@ -38,12 +38,12 @@ wss.on('connection', ws => {
 		socket.on('error', (error)=>{
 			connected = false;
 			console.error(error);
-			socket.destroy();
+			socket.end();
 			ws.send("MC client disconnected");
 		});
 
 		socket.on('end', ()=>{
-			socket.destroy()
+			socket.end();
 			connected = false;
 			ws.send("MC client disconnected");
 		});
@@ -51,7 +51,7 @@ wss.on('connection', ws => {
 	server.listen(25565);
 
 	ws.on('close', ()=>{
-		console.log("client disconnected")
+		console.log("client disconnected");
 	})
 });
 

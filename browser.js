@@ -1,7 +1,9 @@
-function globcon(){
+function hostcon(){
 	if (hostedConnected == false){
-		var gcip = document.getElementById("i").value;
-		hostserv = new WebSocket(gcip);
+		var host = window.location.hostname;
+		var port = window.location.port;
+		var hostip = "ws://"+host+":"+port;
+		hostserv = new WebSocket(hostip);
 		hostserv.onopen = function(event){
 			console.log("Connected hosted WS");
 			document.getElementById('hc').className="connected";
