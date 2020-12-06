@@ -48,6 +48,7 @@ wss.on('connection', ws => {
 	ws.on('message', (event) =>{
 		if (typeof event == "string"){
 			if (connected == false && event.includes("Game client connected:")){
+				isFirstConnection = true;
 				mcip = event
 				mcip = mcip.substr(mcip.indexOf(':')+1);
 				if (mcip.includes(':')){
@@ -64,19 +65,21 @@ wss.on('connection', ws => {
 					client.on('data', (data)=>{
 						ws.send(data);
 					});
+
 					client.on('end', ()=>{
 						console.log("Disconnected from mc server");
 						ws.send("Disconnected from MC server");
 						isFirstConnection = true;
 						connected = false;
 					});
+
 					client.on('error', (error)=>{
 						console.error("Error: ",error);
 						client.destroy();
 						ws.send("Disconnected from MC server");
 						isFirstConnection = true;
 						connected = false;
-					})
+					});
 				});
 			}
 			else{
@@ -142,4 +145,4 @@ wss.on('connection', ws => {
 	});
 });
 
-webserver.listen(8080);
+webserver.listen(80);
