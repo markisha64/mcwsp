@@ -1,0 +1,29 @@
+{
+  "name": "mcwsp",
+  "version": "1.0.0",
+  "description": "minecraft websocket proxy",
+  "main": "hosted.js",
+  "dependencies": {
+    "ws": "^7.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markisha64/mcwsp.git"
+  },
+  "keywords": [
+    "minecraft",
+    "websocket",
+    "node",
+    "proxy"
+  ],
+  "author": "markisha64",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/markisha64/mcwsp/issues"
+  },
+  "homepage": "https://github.com/markisha64/mcwsp#readme"
+}

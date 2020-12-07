@@ -1,12 +1,57 @@
 
+const https = require('https');
 const http = require('http');
 const WebSocket = require('ws');
 const fs = require('fs');
 const net = require('net');
 const url = require('url');
 
-const webserver = http.createServer({});
+var secure = false;
+var port = 80;
+var args = process.argv.slice(2);
+for (i=0;i<args.length;i++){
+	if (args[i] == "-secure" && args.length - i > 1){
+		fp1 = args[i+1];
+		fp2 = args[i+2];
+		try{
+			if (fs.readFileSync(fp1) && fs.readFileSync(fp2)){
+				secure = true;
+			}
+		}
+		catch (err){
+			console.log("Bad key/cert path");
+		}
+	}
+	if (args[i] == "-port" && args.length != i){
+		try{
+			port = parseInt(args[i+1]);
+			if (port < 0 || port > 65536){
+				console.log("port out of range");
+				port = 80;
+			}
+		}
+		catch (err){
+			console.log("invalid port");
+		}
+	}
+}
+
+
+var webserver;
+var options = {};
+if (secure == true){
+	options = {
+		key: fs.readFileSync(fp1),
+		cert: fs.readFileSync(fp2)
+	}
+	webserver = https.createServer(options);
+}
+else{
+	webserver = http.createServer({});
+}
 const wss = new WebSocket.Server({ server: webserver });
+
+
 
 webserver.on('request', (req,res)=>{
 	var q = url.parse(req.url, true);
@@ -24,7 +69,7 @@ webserver.on('request', (req,res)=>{
 
   	}
   	else{
-  		fs.readFile(filename, function(err, data) {
+  		fs.readFile('static/'+filename, function(err, data) {
 		    if (err) {
 				res.writeHead(404, {'Content-Type': 'text/html'});
 				return res.end("404 Not Found");
@@ -88,6 +133,7 @@ wss.on('connection', ws => {
 						client.destroy();
 						isFirstConnection = true;
 						connected = false;
+						client = 0;
 						break;
 				}
 			}
@@ -145,4 +191,4 @@ wss.on('connection', ws => {
 	});
 });
 
-webserver.listen(80);
+webserver.listen(port);

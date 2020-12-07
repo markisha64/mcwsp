@@ -2,7 +2,13 @@ function hostcon(){
 	if (hostedConnected == false){
 		var host = window.location.hostname;
 		var port = window.location.port;
-		var hostip = "ws://"+host+":"+port;
+		var hostip;
+		if (window.location.protocol == "https:"){
+			hostip = "wss://"+host+":"+port;
+		}
+		else{
+			hostip = "ws://"+host+":"+port;
+		}
 		hostserv = new WebSocket(hostip);
 		hostserv.onopen = function(event){
 			console.log("Connected hosted WS");
