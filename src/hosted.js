@@ -57,7 +57,7 @@ webserver.on('request', (req,res)=>{
 	var q = url.parse(req.url, true);
   	var filename = "." + q.pathname;
   	if (filename == "./"){
-  		fs.readFile('index.html', (err,data)=>{
+  		fs.readFile('../static/index.html', (err,data)=>{
   			if (err) {
 			res.writeHead(404, {'Content-Type': 'text/html'});
 			return res.end("404 Not Found");
@@ -69,7 +69,7 @@ webserver.on('request', (req,res)=>{
 
   	}
   	else{
-  		fs.readFile('static/'+filename, function(err, data) {
+  		fs.readFile('../static/'+filename, function(err, data) {
 		    if (err) {
 				res.writeHead(404, {'Content-Type': 'text/html'});
 				return res.end("404 Not Found");
