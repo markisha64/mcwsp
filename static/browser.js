@@ -64,7 +64,8 @@ function loccon(){
 				else{
 					switch(event.data){
 						case "MC client disconnected":
-							dcmc();
+							hostserv.send("Disconnect from MC server");
+							document.getElementById("con").className="disconnected";
 							break;
 					}
 				}
@@ -87,11 +88,5 @@ function loccon(){
 			document.getElementById('lc').className="disconnected";
 			localConnected = false;
 		}
-	}
-}
-function dcmc(){
-	if (serverConnected == true){
-		hostserv.send("Disconnect from MC server");
-		locserv.send("Disconnected from MC server");
 	}
 }

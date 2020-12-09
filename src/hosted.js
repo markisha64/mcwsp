@@ -103,7 +103,8 @@ wss.on('connection', ws => {
 				else{
 					mcport = 25565;
 				}
-				client = net.connect(mcport, mcip, ()=>{
+				client = new net.Socket();
+				client.connect(mcport, mcip, ()=>{
 					connected = true;
 					console.log('Connected to mc server');
 					ws.send("Connected to MC server");
@@ -139,7 +140,7 @@ wss.on('connection', ws => {
 			}
 		}
 		else{
-			if (isFirstConnection){
+			if (isFirstConnection == true){
 				data = Buffer.from(event);
 				console.log("Modifying handshake");
 		
