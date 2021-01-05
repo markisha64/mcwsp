@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <meta charset="utf-8" />
 <html>
-	<style type="text/css">
-		.connected {
-			color: green;
-		}
-		.disconnected {
-			color: red;
-		}
-	</style>
+	<link rel="stylesheet" type="text/css" href="style.css">
 	<script type="text/javascript">
 		var localConnected = false;
 		var hostedConnected = false;
 		var serverConnected = false;
 		var hostserv;
 		var locserv;
+		var connecting;
 	</script>
-	<script type="text/javascript" src="/browser.js"></script>
+	<script type="text/javascript" src="browser.js"></script>
 	<head>
 		<title></title>
 	</head>
 	<body>
-		<div>
-			<button class="disconnected" id="hc" onclick="hostcon()">Connect hosted WS</button>
-			<button class="disconnected" id="lc" onclick="loccon()">Connect local WS</button>
-		</div><br>
-		<div>
-			<form style="display:inline-block;">
-				<label>Minecraft server ip</label><br>
-				<input type="text" name="mc server adress" id="a" value="mc.hypixel.net">
-			</form>
+		<div class="main">
+			<div class="container">
+				Hosted WebSocket server<br>
+				<button class="conbut" id="hc" onclick="hostcon()">Connect</button>	<span class="dot" id="hosted"></span><br>
+				Local WebSocket server<br>
+				<button class="conbut" id="lc" onclick="loccon()">Connect</button> <span class="dot" id="local"></span>
+			</div>
+			<div class="container">
+				<form>
+					<label>Minecraft server ip</label><br>
+					<input type="text" name="mc server adress" id="a" value="mc.hypixel.net"><br>
+					<label>Auth key</label>
+					<input type="password" name="auth" id="auth">
+				</form>
+			</div>
 		</div>
+		<a href="https://github.com/markisha64/mcwsp" target="_blank" rel="noopener noreferrer" style="margin: 25vw; font-size: 2vw;">GitHub</a>
 	</body>
 </html>

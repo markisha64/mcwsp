@@ -9,21 +9,36 @@ function hostcon(){
 		else{
 			hostip = "ws://"+host+":"+port;
 		}
-		hostserv = new WebSocket(hostip);
+
+		hostserv = new WebSocket(hostip, "auth:"+document.getElementById('auth').value);
+		document.getElementById('hc').innerHTML = "Connecting";
+		connecting = true;
+
 		hostserv.onopen = function(event){
 			console.log("Connected hosted WS");
-			document.getElementById('hc').className="connected";
+			document.getElementById('hosted').style.backgroundColor = "green";
+			document.getElementById('hc').innerHTML = "Disconnect";
 			hostedConnected = true;
+			connecting = false;
 		}
+
+		setTimeout(()=>{
+			if (hostedConnected == false && connecting == true){
+				hostserv.close();
+				document.getElementById('hc').value = "Connect";
+				console.log("Connection timed out")
+			}
+		}, 5000);
+
 		hostserv.onmessage = function(event){
 			if (typeof event.data == "string"){
 				switch(event.data){
 					case "Connected to MC server":
-						document.getElementById("con").className="connected";
+						document.getElementById("mc").style.backgroundColor="green";
 						serverConnected = true;
 						break;
 					case "Disconnected from MC server":
-						document.getElementById("con").className="disconnected";
+						document.getElementById("mc").style.backgroundColor="red";
 						serverConnected = false;
 						break;
 				}
@@ -36,16 +51,24 @@ function hostcon(){
 			}
 		}
 		hostserv.onclose = function(event){
-			document.getElementById('hc').className="disconnected";
-			console.log("huh?")
+			document.getElementById('hosted').style.backgroundColor="red";
+			document.getElementById('hc').innerHTML = "Connect";
 			hostedConnected = false;
+			connecting = false;
 			console.log("Hosted WS disconnected");
 		}
 		hostserv.onerror = function(event){
-			console.log("Error: ",event);
-			document.getElementById('hc').className="disconnected";
+			document.getElementById('hosted').style.backgroundColor="red";
+			document.getElementById('hc').innerHTML = "Connect";
 			hostedConnected = false;
+			connecting = false;
 		}
+	}
+	else{
+		hostserv.close();
+		document.getElementById('hosted').style.backgroundColor="red";
+		document.getElementById('hc').innerHTML = "Connect";
+		hostedConnected = false;
 	}
 }
 function loccon(){
@@ -53,7 +76,8 @@ function loccon(){
 		locserv = new WebSocket("ws://localhost:5000");
 		locserv.onopen = function(event){
 			console.log("Connected local WS");
-			document.getElementById('lc').className="connected";
+			document.getElementById('local').style.backgroundColor="green";
+			document.getElementById('lc').innerHTML = "Disconnect";
 			localConnected = true;
 		}
 		locserv.onmessage = function(event){
@@ -65,7 +89,8 @@ function loccon(){
 					switch(event.data){
 						case "MC client disconnected":
 							hostserv.send("Disconnect from MC server");
-							document.getElementById("con").className="disconnected";
+							document.getElementById('hosted').style.backgroundColor="red";
+							document.getElementById('hc').innerHTML = "Connect";
 							break;
 					}
 				}
@@ -79,14 +104,22 @@ function loccon(){
 			}
 		}
 		locserv.onclose = function(event){
-			document.getElementById('lc').className="disconnected";
+			document.getElementById('local').style.backgroundColor="red";
+			document.getElementById('lc').innerHTML = "Connect";
 			localConnected = false;
 			console.log("Local WS disconnected");
 		}
 		locserv.onerror = function(event){
 			console.error("Error: ",event);
-			document.getElementById('lc').className="disconnected";
+			document.getElementById('local').style.backgroundColor="red";
+			document.getElementById('lc').innerHTML = "Connect";
 			localConnected = false;
 		}
+	}
+	else{
+		locserv.close();
+		document.getElementById('local').style.backgroundColor="red";
+		document.getElementById('lc').innerHTML = "Connect";
+		localConnected = false;
 	}
 }

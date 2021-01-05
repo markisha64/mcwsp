@@ -2,6 +2,22 @@
 var WebSocket = require('ws');
 var net = require('net');
 
+var port = 25565;
+var args = process.argv.slice(2);
+for (i=0;i<args.length;i++){
+	if (args[i] == "-port" && args.length != i){
+		try{
+			port = parseInt(args[i+1]);
+			if (port < 0 || port > 65536){
+				console.log("port out of range");
+				port = 80;
+			}
+		}
+		catch (err){
+			console.log("invalid port");
+		}
+}
+
 var wss = new WebSocket.Server({ port: 5000 });
 wss.on('connection', ws => {
 	var connected = false;
@@ -50,14 +66,21 @@ wss.on('connection', ws => {
 			ws.send("MC client disconnected");
 		});
 
-		ws.on('close', ()=>{
-			if (connected){
-				connected = false;
-				client.destroy();
-			}
-		});
+	});
+	ws.on('close', ()=>{
+		ws.terminate();
+		if (connected){
+			connected = false;
+			client.destroy();
+		}
 	});
 
-	server.listen(25565);
+	ws.on('error', ()=>{
+		ws.terminate();
+		if (connected){
+			connected = false;
+			client.destroy();
+		}
+	})
+	server.listen(port);
 });
-

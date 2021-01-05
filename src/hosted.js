@@ -8,6 +8,8 @@ const url = require('url');
 
 var secure = false;
 var port = 80;
+var auth = false;
+var authKey;
 var args = process.argv.slice(2);
 for (i=0;i<args.length;i++){
 	if (args[i] == "-secure" && args.length - i > 1){
@@ -34,8 +36,11 @@ for (i=0;i<args.length;i++){
 			console.log("invalid port");
 		}
 	}
+	if (args[i] == "-auth" && args.length != i){
+		auth = true;
+		authKey = String(args[i+1]);
+	}
 }
-
 
 var webserver;
 var options = {};
@@ -49,7 +54,7 @@ if (secure == true){
 else{
 	webserver = http.createServer({});
 }
-const wss = new WebSocket.Server({ server: webserver });
+const wss = new WebSocket.Server({ noServer: webserver });
 
 
 
@@ -62,6 +67,7 @@ webserver.on('request', (req,res)=>{
 			res.writeHead(404, {'Content-Type': 'text/html'});
 			return res.end("404 Not Found");
 	    } 
+	    
 	    res.writeHead(200, {'Content-Type': 'text/html'});
 	    res.write(data);
 	    return res.end();
@@ -74,11 +80,86 @@ webserver.on('request', (req,res)=>{
 				res.writeHead(404, {'Content-Type': 'text/html'});
 				return res.end("404 Not Found");
 		    } 
-		    res.writeHead(200, {'Content-Type': 'text/html'});
+		    var filetype = filename.split(".").pop();
+			switch(filetype){
+		    	case "html":
+		    		res.writeHead(200, {'Content-Type': 'text/html'});
+		    		break;
+		    	case "js":
+		    		res.writeHead(200, {'Content-Type': 'text/javascript'});
+		    		break;
+		    	case "css":
+		    		res.writeHead(200, {'Content-Type': 'text/css'});
+		    		break;
+		    	default:
+		    		res.writeHead(200, {'Content-Type': 'text/plain'});
+		    		break;
+		    }
 		    res.write(data);
 		    return res.end();
 		});
   	}
+});
+
+
+var blocked = {};
+webserver.on('upgrade', (request, socket, head)=>{
+	if (auth){
+		var clientIp = socket.remoteAddress;
+		console.log(clientIp)
+		if (blocked.hasOwnProperty(clientIp) && blocked[clientIp]["state"] == "blocked"){
+			console.log("Connection refused")
+			socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+		    socket.destroy();
+			return;
+		}
+		var key = request.headers['sec-websocket-protocol'];
+		if (key.includes("auth:")){
+			key = key.substr(key.indexOf(':')+1);
+			if (key == authKey){
+				wss.handleUpgrade(request, socket, head, (ws)=>{
+					wss.emit('connection', ws);
+				});
+			}
+			else{
+				if (blocked.hasOwnProperty(clientIp)){
+					var attempts = blocked[clientIp]["attempts"];
+					if (attempts > 3){
+						blocked[clientIp]["state"] = "blocked";
+						setTimeout((cl)=>{
+							blocked[cl]["state"] = "allowed";
+						}, (30 * (2**(attempts - 4)))*1000, clientIp);
+					}
+					blocked[clientIp]["attempts"] += 1;
+					console.log("Connection refused")
+					socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+				    socket.destroy();
+					return;
+				}
+				else{
+					var built = {
+						'attempts': 1,
+						'state': 'allowed'
+					};
+					blocked[clientIp] = built;
+					socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+				    socket.destroy();
+					return;
+				}
+			}
+		}
+		else{
+			console.log("Connection refused")
+			socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+		    socket.destroy();
+			return;
+		}
+	}
+	else{
+		wss.handleUpgrade(request, socket, head, (ws)=>{
+			wss.emit('connection', ws);
+		});
+	}
 });
 
 wss.on('connection', ws => {
@@ -190,6 +271,29 @@ wss.on('connection', ws => {
 			}
 		}
 	});
+
+	ws.on("close", ()=>{
+		ws.terminate();
+		if (connected){
+			client.destroy();
+		}
+		console.log("client disconnected");
+	});
+
+	ws.on("error", (err)=>{
+		ws.terminate();
+		if (connected){
+			client.destroy();
+		}
+		console.log(err);
+	});
+});
+
+webserver.on("error", (err)=>{
+	console.log(err);
+	setTimeout(function(){
+		webserver.listen(port);
+	}, 60000);
 });
 
 webserver.listen(port);
