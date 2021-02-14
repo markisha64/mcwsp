@@ -39,7 +39,7 @@ Next step is to connect the local websocket via browser interface.
 Type in the Minecraft server adress you wish to play on.
 If both websockets are connected you can connect your Minecraft client to localhost and you'll be playing on desired server.
 
-For extra control you can use -secure , -auth , and -port command line arguments
+For extra control you can use -secure , -auth , -port and -wsport command line arguments
 
 -secure
 ```
@@ -60,6 +60,15 @@ node hosted.js -port <desired port>
 ```
 or
 ```
-node local.js -port desired port>
+node local.js -port <desired port>
 ```
+
 Makes the server run on the desired port.
+
+-wsport
+```
+node local.js -wsport <desired port>
+```
+Makes the local websocket server run on desired port.
+
+Useful in cases where port is already in use ie. 80, 25565 or 5000.

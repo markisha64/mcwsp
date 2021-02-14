@@ -2,17 +2,9 @@
 <meta charset="utf-8" />
 <html>
 	<link rel="stylesheet" type="text/css" href="style.css">
-	<script type="text/javascript">
-		var localConnected = false;
-		var hostedConnected = false;
-		var serverConnected = false;
-		var hostserv;
-		var locserv;
-		var connecting;
-	</script>
-	<script type="text/javascript" src="browser.js"></script>
+	<link rel="icon" type="image/x-icon" href="favicon.ico">
 	<head>
-		<title></title>
+		<title>MCWSP interface</title>
 	</head>
 	<body>
 		<div class="main">
@@ -20,17 +12,20 @@
 				Hosted WebSocket server<br>
 				<button class="conbut" id="hc" onclick="hostcon()">Connect</button>	<span class="dot" id="hosted"></span><br>
 				Local WebSocket server<br>
-				<button class="conbut" id="lc" onclick="loccon()">Connect</button> <span class="dot" id="local"></span>
+				<input class="lPort" type="text" name="lPort" id="lPort" value="5000">
+				<button class="conbut" id="lc" onclick="loccon()">Connect</button>
+				<span class="dot" id="local"></span>
 			</div>
 			<div class="container">
 				<form>
 					<label>Minecraft server ip</label><br>
-					<input type="text" name="mc server adress" id="a" value="mc.hypixel.net"><br>
-					<label>Auth key</label>
-					<input type="password" name="auth" id="auth">
+					<input class="field" type="text" name="mc server adress" id="a" value="mc.hypixel.net"><br>
+					<label>Auth key</label><br>
+					<input class="field" type="password" name="auth" id="auth">
 				</form>
 			</div>
 		</div>
 		<a href="https://github.com/markisha64/mcwsp" target="_blank" rel="noopener noreferrer" style="margin: 25vw; font-size: 2vw;">GitHub</a>
+		<script type="text/javascript" src="browser.js"></script>
 	</body>
 </html>

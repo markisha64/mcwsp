@@ -1,19 +1,19 @@
-
+// initialization
 const https = require('https');
 const http = require('http');
 const WebSocket = require('ws');
 const fs = require('fs');
 const net = require('net');
 const url = require('url');
-
 var secure = false;
-var port = 80;
+var port = 80; // webserver port
 var auth = false;
 var authKey;
+// command line argument parsing parsing
 var args = process.argv.slice(2);
-for (i=0;i<args.length;i++){
+for (i=0;i<args.length;i++){ 
 	if (args[i] == "-secure" && args.length - i > 1){
-		fp1 = args[i+1];
+		fp1 = args[i+1]; // file path 1 and 2
 		fp2 = args[i+2];
 		try{
 			if (fs.readFileSync(fp1) && fs.readFileSync(fp2)){
@@ -41,7 +41,7 @@ for (i=0;i<args.length;i++){
 		authKey = String(args[i+1]);
 	}
 }
-
+// webserver initialization
 var webserver;
 var options = {};
 if (secure == true){
@@ -57,7 +57,7 @@ else{
 const wss = new WebSocket.Server({ noServer: webserver });
 
 
-
+// static file serving
 webserver.on('request', (req,res)=>{
 	var q = url.parse(req.url, true);
   	var filename = "." + q.pathname;
@@ -81,7 +81,11 @@ webserver.on('request', (req,res)=>{
 				return res.end("404 Not Found");
 		    } 
 		    var filetype = filename.split(".").pop();
+		    // content type
 			switch(filetype){
+				case "ico":
+					res.writeHead(200, {'Content-Type': 'image/x-icon'});
+		    		break;
 		    	case "html":
 		    		res.writeHead(200, {'Content-Type': 'text/html'});
 		    		break;
@@ -102,11 +106,12 @@ webserver.on('request', (req,res)=>{
 });
 
 
-var blocked = {};
+// upgrade handler / auth
+var blocked = {}; // object that contains blocked adresses
 webserver.on('upgrade', (request, socket, head)=>{
 	if (auth){
 		var clientIp = socket.remoteAddress;
-		console.log(clientIp)
+		console.log(clientIp);
 		if (blocked.hasOwnProperty(clientIp) && blocked[clientIp]["state"] == "blocked"){
 			console.log("Connection refused")
 			socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
@@ -131,16 +136,18 @@ webserver.on('upgrade', (request, socket, head)=>{
 						}, (30 * (2**(attempts - 4)))*1000, clientIp);
 					}
 					blocked[clientIp]["attempts"] += 1;
-					console.log("Connection refused")
+					console.log("Connection refused");
 					socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
 				    socket.destroy();
 					return;
 				}
 				else{
+					// creating object
 					var built = {
 						'attempts': 1,
 						'state': 'allowed'
 					};
+					// inserting object
 					blocked[clientIp] = built;
 					socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
 				    socket.destroy();
@@ -162,19 +169,27 @@ webserver.on('upgrade', (request, socket, head)=>{
 	}
 });
 
+// websocket server handler
 wss.on('connection', ws => {
 	console.log('client connected');
 
+	// websocket init
 	var mcip = "mc.hypixel.net";
 	var mcport = 25565;
 	var connected = false;
 	var isFirstConnection = true;
 	var client;
 
+	// message handler
 	ws.on('message', (event) =>{
-		if (typeof event == "string"){
+		// checks if event is a string
+		if (typeof event == "string"){ 
+			// checks if it's connected to Minecraft and if the message contains "Game client connected:" as 
+			// that's the message that contains the Minecraft server ip 
 			if (connected == false && event.includes("Game client connected:")){
+				// setting this to true makes the next packet (assumed handshake packet) get modified
 				isFirstConnection = true;
+				// parsing ip and port from string
 				mcip = event
 				mcip = mcip.substr(mcip.indexOf(':')+1);
 				if (mcip.includes(':')){
@@ -184,15 +199,19 @@ wss.on('connection', ws => {
 				else{
 					mcport = 25565;
 				}
+				// creating socket that connects to Minecraft server and connecting it with on connect handler
 				client = new net.Socket();
-				client.connect(mcport, mcip, ()=>{
-					connected = true;
+				client.connect(mcport, mcip, ()=>{ // <-- on connect handler
+					connected = true; // connected to Minecraft server
 					console.log('Connected to mc server');
+					// sending message to browser so it knows Minecraft server is connected
 					ws.send("Connected to MC server");
+					// sends data from from Minecraft server to browser
 					client.on('data', (data)=>{
 						ws.send(data);
 					});
 
+					// rudimentary socket close handling 
 					client.on('end', ()=>{
 						console.log("Disconnected from mc server");
 						ws.send("Disconnected from MC server");
@@ -200,16 +219,18 @@ wss.on('connection', ws => {
 						connected = false;
 					});
 
+					// rudimentary error close handling
 					client.on('error', (error)=>{
 						console.error("Error: ",error);
-						client.destroy();
 						ws.send("Disconnected from MC server");
+						client.destroy();
 						isFirstConnection = true;
 						connected = false;
 					});
 				});
 			}
 			else{
+				// handling messages from browser (currently only 1)
 				switch(event){
 					case "Disconnect from MC server":
 						client.destroy();
@@ -221,15 +242,15 @@ wss.on('connection', ws => {
 			}
 		}
 		else{
+			// handshale modification, special thanks to Azurethi
 			if (isFirstConnection == true){
 				data = Buffer.from(event);
-				console.log("Modifying handshake");
 		
 				//Get the length of the first packet
 				var firstPlen = data[0];   //d = [len, 0, ver, ver?, strlen, ...]
 
 				//find string length varint
-				//checking if the position of byte is correct
+				//checking if the position of byte is correct, I should turn this into an actual loop but im lazy
 				var stringPos = 3;
 				if(data[2]>127)stringPos++; 
 
@@ -267,11 +288,13 @@ wss.on('connection', ws => {
 				isFirstConnection = false;
 			}
 			else{
+				// send packets from browser to Minecraft server
 				client.write(Buffer.from(event));	
 			}
 		}
 	});
 
+	// rudimentary websocket close handling
 	ws.on("close", ()=>{
 		ws.terminate();
 		if (connected){
@@ -280,6 +303,7 @@ wss.on('connection', ws => {
 		console.log("client disconnected");
 	});
 
+	// rudimentary websocket error handling (close and ignore)
 	ws.on("error", (err)=>{
 		ws.terminate();
 		if (connected){
@@ -289,6 +313,7 @@ wss.on('connection', ws => {
 	});
 });
 
+// if webserver error retries starting on same port every minute
 webserver.on("error", (err)=>{
 	console.log(err);
 	setTimeout(function(){
@@ -296,4 +321,5 @@ webserver.on("error", (err)=>{
 	}, 60000);
 });
 
+// initial server start
 webserver.listen(port);

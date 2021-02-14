@@ -1,0 +1,55 @@
+
+.connected {
+	color: green;
+}
+
+.disconnected {
+	color: red;
+}
+
+.main {
+	font-size: 2vw;
+  	clear: both;
+  	display: table;
+	margin: auto;
+	padding: 0.2%;
+	width: 50vw;	
+	position: relative;
+	text-align: center;
+	border: 4px black solid;
+	border-radius: 20px;
+}
+
+.container {
+	width: 50%;
+	float: left;
+	clear: right;
+}
+
+.dot {
+  height: 2vw;
+  width: 2vw;
+  background-color: red;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.conbut {
+	font-size: 2vw;
+	height: 50%;
+	width: 50%;
+}
+
+.field{
+	text-align: center;
+	font-size: 2vw;
+	height: 50%;
+	width: 75%;
+}
+
+.lPort{
+	text-align: center;
+	font-size: 2vw;
+	height: 50%;
+	width: 25%;
+}
