@@ -54,7 +54,7 @@ if (secure == true){
 else{
 	webserver = http.createServer({});
 }
-const wss = new WebSocket.Server({ noServer: webserver });
+const wss = new WebSocket.Server({ noServer: true });
 
 
 // static file serving
@@ -119,8 +119,8 @@ webserver.on('upgrade', (request, socket, head)=>{
 			return;
 		}
 		var key = request.headers['sec-websocket-protocol'];
-		if (key.includes("auth:")){
-			key = key.substr(key.indexOf(':')+1);
+		if (key.includes("auth")){
+			key = key.substr(key.indexOf('auth')+4);
 			if (key == authKey){
 				wss.handleUpgrade(request, socket, head, (ws)=>{
 					wss.emit('connection', ws);

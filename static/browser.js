@@ -23,7 +23,7 @@ function hostcon(){
 
 		// hosted webserver init
 		var connecting = true; // bool connecting to hosted WS
-		hostserv = new WebSocket(hostip, "auth:"+document.getElementById('auth').value);
+		hostserv = new WebSocket(hostip, ["auth"+document.getElementById('auth').value]);
 		document.getElementById('hc').innerHTML = "Connecting";
 		
 		// on connect handler
@@ -97,7 +97,7 @@ function loccon(){
 		// local WS init
 		var port = document.getElementById("lPort").value;
 		
-		locserv = new WebSocket("ws://localhost:5000");
+		locserv = new WebSocket("ws://localhost:" + port);
 
 		// on connect handler
 		// no timeout as I expect people to be able to connect to a local server .-.

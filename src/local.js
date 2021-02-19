@@ -18,20 +18,22 @@ for (i=0;i<args.length;i++){
 		catch (err){
 			console.log("invalid port");
 		}
+	}
 	if (args[i] == "-wsport" && args.length != i){
 		try{
 			wsport = parseInt(args[i+1]);
 			if (wsport < 0 || wsport > 65536){
 				console.log("webscoket port out of range");
-				wsport = 80;
+				wsport = 5000;
 			}
 		}
 		catch (err){
 			console.log("invalid websocket port");
 		}
+	}
 }
 // websocket server initialize
-var wss = new WebSocket.Server({ port: 5000 });
+var wss = new WebSocket.Server({ port: wsport });
 // websocket server handler
 wss.on('connection', ws => {
 	// websocket init
@@ -97,6 +99,7 @@ wss.on('connection', ws => {
 	// rudimentary socket close handling
 	ws.on('close', ()=>{
 		ws.terminate();
+		server.close();
 		if (connected){
 			connected = false;
 			client.destroy();
@@ -105,10 +108,12 @@ wss.on('connection', ws => {
 
 	// rudimentary socket error handling (close and ignore)
 	ws.on('error', ()=>{
+		server.close();
 		ws.terminate();
 		if (connected){
 			connected = false;
 			client.destroy();
+			server.close();
 		}
 	})
 
