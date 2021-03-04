@@ -118,8 +118,6 @@ function loccon(){
 					switch(event.data){
 						case "MC client disconnected":
 							hostserv.send("Disconnect from MC server");
-							document.getElementById('hosted').style.backgroundColor="red";
-							document.getElementById('hc').innerHTML = "Connect";
 							break;
 					}
 				}
